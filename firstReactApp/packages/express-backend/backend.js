@@ -70,7 +70,7 @@ app.get("/users/:id", (req, res) => {
         res.send(result);
     }
 });
-*/
+
 
 const addUser = (user) => {
     users["users_list"].push(user);
@@ -81,6 +81,31 @@ app.post("/users", (req, res) => {
     const userToAdd = req.body;
     addUser(userToAdd);
     res.send();
+});
+*/
+app.delete("/users/:id", (req, res) => {
+    const id = req.params["id"];
+    const index = users["users_list"].findIndex((user) => user.id === id);
+
+    if (index === -1) {
+        res.send("id not found");
+    } else {
+        users["users_list"].splice(index, 1); 
+        res.send("user deleted");
+    }
+});
+
+const findUsersByNameAndJob = (name, job) => {
+    return users.users_list.filter(
+      (user) => user.name === name && user.job === job
+    );
+};
+  
+app.get("/users", (req, res) => {
+    const { name, job } = req.query; 
+    let result = findUsersByNameAndJob(name, job);
+    result = { users_list: result };
+    res.send(result);
 });
 
 app.listen(port, () => {
