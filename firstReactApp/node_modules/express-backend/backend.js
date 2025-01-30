@@ -37,65 +37,17 @@ const users = {
       }
     ]
   };
-/*
-  app.get("/users", (req, res) => {
-    res.send(users);
-  });
 
-  const findUserByName = (name) => {
-    return users["users_list"].filter(
-      (user) => user["name"] === name
-    );
-  };
+  app.delete("/users/:id", (req, res) => {
+    const userId = req.params.id;
+    const index = users.users_list.findIndex((user) => user.id === userId);
   
-  
-app.get("/users", (req, res) => {
-const name = req.query.name;
-    if (name != undefined) {
-        let result = findUserByName(name);
-        result = { users_list: result };
-        res.send(result);
-    } else {
-        res.send(users);
-    }
-});
-
-const findUserById = (id) =>
-    users["users_list"].find((user) => user["id"] === id);
-  
-app.get("/users/:id", (req, res) => {
-    const id = req.params["id"]; //or req.params.id
-    let result = findUserById(id);
-    if (result === undefined) {
-        res.status(404).send("Resource not found.");
-    } else {
-        res.send(result);
-    }
-});
-
-
-const addUser = (user) => {
-    users["users_list"].push(user);
-    return user;
-};
-  
-app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
-});
-*/
-app.delete("/users/:id", (req, res) => {
-    const id = req.params["id"];
-    const index = users["users_list"].findIndex((user) => user.id === id);
-
     if (index === -1) {
-        res.send("id not found");
-    } else {
-        users["users_list"].splice(index, 1); 
-        res.send("user deleted");
+      return res.status(404).send("resource not found");
     }
-});
+      users.users_list.splice(index, 1);
+      res.status(204).send();
+  });
 
 const findUsersByNameAndJob = (name, job) => {
     return users.users_list.filter(
@@ -108,6 +60,19 @@ app.get("/users", (req, res) => {
     let result = findUsersByNameAndJob(name, job);
     result = { users_list: result };
     res.send(result);
+});
+
+const generateRandomId = () => {
+  return Math.random();
+}
+app.post("/users", (req, res) => {
+  const newUser = req.body;
+  if (!newUser.name || !newUser.job) {
+      return res.status(400).send("All fields must be filled");
+  }
+  newUser.id = generateRandomId();
+  users.users_list.push(newUser);
+  res.status(201).json(newUser); 
 });
 
 app.listen(port, () => {

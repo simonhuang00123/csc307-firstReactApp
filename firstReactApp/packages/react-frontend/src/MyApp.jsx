@@ -6,20 +6,32 @@ import Form from "./Form";
   function MyApp() {
     const [characters, setCharacters] = useState([]);
 
-    function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-          return i !== index;
-        });
-        setCharacters(updated);
-    }
-
     function updateList(person) {
       postUser(person)
-        .then(() => setCharacters([...characters, person]))
+        .then((res) => {
+          if (res.status === 201) { 
+            return res.json();
+          }
+        })
+        .then((data) => {
+          setCharacters([...characters, data]); 
+        })
         .catch((error) => {
           console.log(error);
         });
     }
+    
+    function removeOneCharacter(index) {
+      const userId = characters[index].id;
+      fetch(`http://localhost:8000/users/${userId}`, {
+        method: "DELETE",
+      })
+        .then(() => {
+          setCharacters(characters.filter((_, i) => i !== index));
+        });
+    }
+    
+    
 
     function fetchUsers() {
       const promise = fetch("http://localhost:8000/users");
